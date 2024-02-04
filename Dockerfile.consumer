@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["Consumer/Consumer.csproj", "Consumer/"]
+COPY ["Shared/Shared.csproj", "Shared/"]
+RUN dotnet restore "Consumer/Consumer.csproj"
+
+COPY . .
+RUN dotnet publish -c Release -o /app Consumer/Consumer.csproj 
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS publish
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "Consumer.dll"]

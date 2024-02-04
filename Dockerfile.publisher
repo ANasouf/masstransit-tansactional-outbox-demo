@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["Publisher/Publisher.csproj", "Publisher/"]
+COPY ["Shared/Shared.csproj", "Shared/"]
+RUN dotnet restore "Publisher/Publisher.csproj"
+
+COPY . .
+RUN dotnet publish -c Release -o /app Publisher/Publisher.csproj 
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS publish
+WORKDIR /app
+COPY --from=build /app ./
+ENTRYPOINT ["dotnet", "Publisher.dll"]
